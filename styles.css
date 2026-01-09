@@ -1,0 +1,14 @@
+canvas{
+    background: #aaa;
+}
+
+#gameContainer{
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    z-index: 0;
+}
+
+#gameZone{
+    z-index: 0;
+}
