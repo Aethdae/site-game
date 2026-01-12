@@ -1,5 +1,5 @@
 const getYear = new Date().toISOString().slice(0, 4);
-var doc = document;
+const doc = document;
 const year = doc.getElementById("year");
 const gameZone = doc.getElementById("gameZone");
 const gameContainer = doc.getElementById("gameContainer");
@@ -7,13 +7,44 @@ const ctx = gameZone.getContext("2d");
 const tilePadding = 4;
 const tileSize = 12;
 const buttons = [];
+const gameUpdateTimerMS = 5000;
 
-function startUp()
+async function startUp()
 {
+    await loadImages();
+    await loadJson();
     year.innerHTML = getYear.valueOf("year");
-    createTiles();
+    gameZone.addEventListener("click", function(event)
+    {
+        const mousePosition = getClickLocation(gameZone, event);
+        console.log(`${mousePosition.x}, ${mousePosition.y}`);
+        createImg(mousePosition.x, mousePosition.y);
+    });
 }
 
+async function loadImages()
+{
+    await Promise.all(
+        Array.from(doc.images).map(
+            (image) =>
+                new Promise((resolve) => image.addEventListener("load"), resolve)
+        )
+    )
+}
+
+async function loadJson()
+{
+
+}
+
+function getClickLocation(canvas, event)
+{
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top
+    };
+}
 async function draw()
 {
     // await Promise.all(
@@ -32,12 +63,12 @@ async function draw()
 
 function createTiles()
 {
-    let iterator = 0;
     for (let y = tilePadding; y < gameZone.getAttribute("height") - tilePadding; y += tileSize + tilePadding)
     {
         for (let x = tilePadding; x < gameZone.getAttribute("width") - tilePadding; x += tileSize + tilePadding)
         {
-                createRect(x, y, tileSize, tileSize, true, "red");
+                createImg(x, y);
+                //createRect(x, y, tileSize, tileSize, true, "red");
                 if (Math.random() < .3)
                 {
                     createImg(x, y);
@@ -48,25 +79,11 @@ function createTiles()
 
 function createImg(x, y)
 {
-    let image = new Image(4, 4);
+    const image = new Image(4, 4);
     image.src = "x.png";
     image.alt = "pixel x";
 
     ctx.drawImage(image, x, y, 50, 50);
-}
-
-function createButtons(x, y, id)
-{
-    let element = doc.createElement("button");
-    element.id = "button" + id;
-    element.style.width = tileSize.toString() + "px";
-    element.style.height = tileSize.toString() + "px";
-    element.style.position = "absolute";
-    element.style.left = x.toString() + "px";
-    element.style.top = y.toString() + "px";
-    element.style.border = "2px white solid";
-    element.style.cursor = "pointer";
-    element.style.zIndex = "13";
 }
 
 function createRect(x, y, w, h, filled = false, color = "black")
@@ -82,3 +99,13 @@ function createRect(x, y, w, h, filled = false, color = "black")
 }
 
 startUp();
+
+setTimeout(gameUpdate, gameUpdateTimerMS);
+
+function gameUpdate()
+{
+    let modifier = 1;
+    setTimeout(gameUpdate, gameUpdateTimerMS * modifier);
+
+    console.log("I am running gameUpdate");
+}
